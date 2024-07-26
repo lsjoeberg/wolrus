@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.11", features = ["derive"] }
 macaddr = "1.0.1"
+
+[lints.clippy]
+pedantic = "warn"
