@@ -9,3 +9,8 @@ macaddr = "1.0.1"
 
 [lints.clippy]
 pedantic = "warn"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
