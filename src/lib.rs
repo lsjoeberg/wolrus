@@ -7,7 +7,10 @@ use macaddr::MacAddr6;
 const MAGIC_PAYLOAD: [u8; 6] = [0xff; 6];
 
 fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
-    [&MAGIC_PAYLOAD, mac.as_bytes().repeat(16).as_slice()].concat()
+    let mut buf: Vec<u8> = Vec::with_capacity(6 + 6 * 16);
+    buf.extend_from_slice(&MAGIC_PAYLOAD);
+    buf.extend_from_slice(mac.as_bytes().repeat(16).as_slice());
+    buf
 }
 
 /// Send wake-on-lan packet.
