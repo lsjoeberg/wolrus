@@ -11,7 +11,7 @@ fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
 }
 
 /// Send wake-on-lan packet.
-pub fn send_wol(ip: Ipv4Addr, port: u16, mac: MacAddr6) -> Result<(), io::Error> {
+pub fn wake_on_lan(ip: Ipv4Addr, port: u16, mac: MacAddr6) -> Result<(), io::Error> {
     let socket = UdpSocket::bind("0.0.0.0:0")?;
 
     // Permits sending of broadcast messages.

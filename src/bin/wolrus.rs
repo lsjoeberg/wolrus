@@ -2,7 +2,7 @@ use std::net::Ipv4Addr;
 
 use clap::Parser;
 use macaddr::MacAddr6;
-use wolrus::send_wol;
+use wolrus::wake_on_lan;
 
 const DEFAULT_ADDR: Ipv4Addr = Ipv4Addr::BROADCAST;
 const DEFAULT_PORT: u16 = 9;
