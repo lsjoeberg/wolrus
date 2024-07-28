@@ -1,3 +1,28 @@
+//! Send Wake-on-LAN packets.
+//!
+//! The Wake-on-LAN implementation has the following [limitations]:
+//! - May not work outside the local network.
+//! - Requires hardware support in destination computer.
+//! - Most 802.11 wireless interfaces do not maintain a link in low-power
+//!   states and cannot receive a magic packet.
+//!
+//! # Examples
+//!
+//! ```rust
+//! use std::net::Ipv4Addr;
+//! use macaddr::MacAddr6;
+//! use wolrus::wake_on_lan;
+//!
+//! // Broadcast WoL on the local network.
+//! let mac = MacAddr6::from([0, 1, 2, 3, 4, 5]);
+//! wake_on_lan(mac, None, None).expect("failed to send packet");
+//!
+//! // Broadcast WoL on the local subnet.
+//! let ip = Ipv4Addr::new(192, 168, 0, 255);
+//! wake_on_lan(mac, Some(ip), None).expect("failed to send packet");
+//! ```
+//! [Limitations]: https://en.wikipedia.org/wiki/Wake-on-LAN#Magic_packet
+
 use std::io;
 use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
@@ -12,6 +37,7 @@ pub const DEFAULT_PORT: u16 = 9;
 /// A wake-on-lan magic packet starts with a fixed payload: 6 bytes of all 255.
 const MAGIC_PAYLOAD: [u8; 6] = [0xff; 6];
 
+/// Build a magic Wake-on-LAN packet from a 48-bit MAC address.
 fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
     let mut buf: Vec<u8> = Vec::with_capacity(6 + 6 * 16);
     buf.extend_from_slice(&MAGIC_PAYLOAD);
@@ -19,7 +45,14 @@ fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
     buf
 }
 
-/// Send wake-on-lan packet.
+/// Send a Wake-on-LAN packet over UDP.
+///
+/// The function creates a UDP socket bound to `0.0.0.0:0` and sends a
+/// Wake-on-LAN UDP datagram to the specified `ip` and `port`, or default
+/// `255.255.255.255` on port `9`.
+///
+/// # Errors
+/// Will return `Err` if the OS is unable to create a socket.
 pub fn wake_on_lan(
     mac: MacAddr6,
     ip: Option<Ipv4Addr>,
