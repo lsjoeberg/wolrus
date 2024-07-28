@@ -3,15 +3,15 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
 use macaddr::MacAddr6;
 
-mod cli;
-
+/// A wake-on-lan magic packet starts with a fixed payload: 6 bytes of all 255.
 const MAGIC_PAYLOAD: [u8; 6] = [0xff; 6];
 
 fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
     [&MAGIC_PAYLOAD, mac.as_bytes().repeat(16).as_slice()].concat()
 }
 
-fn send_wol(ip: Ipv4Addr, port: u16, mac: MacAddr6) -> Result<(), io::Error> {
+/// Send wake-on-lan packet.
+pub fn send_wol(ip: Ipv4Addr, port: u16, mac: MacAddr6) -> Result<(), io::Error> {
     let socket = UdpSocket::bind("0.0.0.0:0")?;
 
     // Permits sending of broadcast messages.
@@ -25,11 +25,4 @@ fn send_wol(ip: Ipv4Addr, port: u16, mac: MacAddr6) -> Result<(), io::Error> {
     let packet = build_magic_packet(mac);
     socket.send(&packet)?;
     Ok(())
-}
-
-fn main() {
-    let args = cli::Args::get();
-    if let Err(err) = send_wol(args.ip, args.port, args.mac) {
-        eprintln!("{err}");
-    };
 }

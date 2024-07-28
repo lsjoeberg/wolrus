@@ -2,6 +2,7 @@ use std::net::Ipv4Addr;
 
 use clap::Parser;
 use macaddr::MacAddr6;
+use wolrus::send_wol;
 
 const DEFAULT_ADDR: Ipv4Addr = Ipv4Addr::BROADCAST;
 const DEFAULT_PORT: u16 = 9;
@@ -29,8 +30,9 @@ pub struct Args {
     pub port: u16,
 }
 
-impl Args {
-    pub fn get() -> Self {
-        Self::parse()
-    }
+fn main() {
+    let args = Args::parse();
+    if let Err(err) = wake_on_lan(args.ip, args.port, args.mac) {
+        eprintln!("{err}");
+    };
 }
