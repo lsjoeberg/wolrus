@@ -4,9 +4,6 @@ use clap::Parser;
 use macaddr::MacAddr6;
 use wolrus::wake_on_lan;
 
-const DEFAULT_ADDR: Ipv4Addr = Ipv4Addr::BROADCAST;
-const DEFAULT_PORT: u16 = 9;
-
 /// Send wake-on-lan packets.
 ///
 /// Limitations: may not work outside the local network; requires hardware
@@ -22,17 +19,17 @@ pub struct Args {
     ///
     /// Hint: For a NIC on a local subnet 192.168.10.0/24, use the subnet's
     /// broadcast address: 192.168.10.255.
-    #[arg(short = 'i', long, default_value_t = DEFAULT_ADDR)]
+    #[arg(short = 'i', long, default_value_t = wolrus::DEFAULT_ADDR)]
     pub ip: Ipv4Addr,
 
     /// Target port; usually 0, 7 (Echo), or 9 (Discard)
-    #[arg(short = 'p', long, default_value_t = DEFAULT_PORT)]
+    #[arg(short = 'p', long, default_value_t = wolrus::DEFAULT_PORT)]
     pub port: u16,
 }
 
 fn main() {
     let args = Args::parse();
-    if let Err(err) = wake_on_lan(args.ip, args.port, args.mac) {
+    if let Err(err) = wake_on_lan(args.mac, Some(args.ip), Some(args.port)) {
         eprintln!("{err}");
     };
 }

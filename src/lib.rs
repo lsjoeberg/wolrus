@@ -3,6 +3,12 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
 use macaddr::MacAddr6;
 
+/// Default target IP is the broadcast address: `255.255.255.255`.
+pub const DEFAULT_ADDR: Ipv4Addr = Ipv4Addr::BROADCAST;
+
+/// Default target port is the Discard port: `9`.
+pub const DEFAULT_PORT: u16 = 9;
+
 /// A wake-on-lan magic packet starts with a fixed payload: 6 bytes of all 255.
 const MAGIC_PAYLOAD: [u8; 6] = [0xff; 6];
 
@@ -14,14 +20,18 @@ fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
 }
 
 /// Send wake-on-lan packet.
-pub fn wake_on_lan(ip: Ipv4Addr, port: u16, mac: MacAddr6) -> Result<(), io::Error> {
+pub fn wake_on_lan(
+    mac: MacAddr6,
+    ip: Option<Ipv4Addr>,
+    port: Option<u16>,
+) -> Result<(), io::Error> {
     let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0))?;
 
     // Permits sending of broadcast messages.
     socket.set_broadcast(true)?;
 
     // Connect to target host.
-    let target = SocketAddrV4::new(ip, port);
+    let target = SocketAddrV4::new(ip.unwrap_or(DEFAULT_ADDR), port.unwrap_or(DEFAULT_PORT));
     socket.connect(target)?;
 
     // Send WOL magic packet.
