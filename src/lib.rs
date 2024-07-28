@@ -34,15 +34,13 @@ pub const DEFAULT_ADDR: Ipv4Addr = Ipv4Addr::BROADCAST;
 /// Default target port is the Discard port: `9`.
 pub const DEFAULT_PORT: u16 = 9;
 
-/// A wake-on-lan magic packet starts with a fixed payload: 6 bytes of all 255.
-const MAGIC_PAYLOAD: [u8; 6] = [0xff; 6];
-
 /// Build a magic Wake-on-LAN packet from a 48-bit MAC address.
-fn build_magic_packet(mac: MacAddr6) -> Vec<u8> {
-    let mut buf: Vec<u8> = Vec::with_capacity(6 + 6 * 16);
-    buf.extend_from_slice(&MAGIC_PAYLOAD);
-    buf.extend_from_slice(mac.as_bytes().repeat(16).as_slice());
-    buf
+fn build_magic_packet(mac: MacAddr6) -> [u8; 102] {
+    // The first 6 bytes if the packet are all 0xff, followed by 16
+    // repetitions of the 6-byte MAC address.
+    let mut a = [0xff; 102]; // 6 + 6 * 16 = 102
+    a[6..].copy_from_slice(mac.into_array().repeat(16).as_slice());
+    a
 }
 
 /// Send a Wake-on-LAN packet over UDP.
@@ -77,7 +75,7 @@ pub fn wake_on_lan(
 mod tests {
     use macaddr::MacAddr6;
 
-    use crate::{build_magic_packet, MAGIC_PAYLOAD};
+    use crate::build_magic_packet;
 
     // A WoL packet is 6 bytes of 0xff, followed by 16 repetitions of the
     // 48-bit (6 byte) MAC address. This is 6 + 6 * 16 = 102 bytes.
@@ -98,7 +96,7 @@ mod tests {
     fn build_packet_real() {
         let mac = MacAddr6::new(0, 1, 2, 3, 4, 5);
         let mut expected = Vec::with_capacity(EXPECTED_LEN);
-        expected.extend_from_slice(&MAGIC_PAYLOAD);
+        expected.extend_from_slice(&[0xff; 6]);
         expected.extend_from_slice(mac.as_bytes().repeat(16).as_slice());
 
         let packet = build_magic_packet(mac);
