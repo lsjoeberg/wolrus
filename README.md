@@ -1,10 +1,10 @@
-# RCON
+# wolrus
 
 A tiny Rust library for [Wake on LAN].
 
 ## Usage
 
-The library provides a single function `wake_on_lan`. The optional feature 
+The library provides a single function `wake_on_lan`. The optional feature
 `cli` installs a binary that can issue Wake-on-LAN commands from the terminal.
 
 ### Library
