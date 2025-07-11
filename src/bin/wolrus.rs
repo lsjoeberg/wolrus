@@ -31,5 +31,5 @@ fn main() {
     let args = Args::parse();
     if let Err(err) = wake_on_lan(args.mac, Some(args.ip), Some(args.port)) {
         eprintln!("{err}");
-    };
+    }
 }
