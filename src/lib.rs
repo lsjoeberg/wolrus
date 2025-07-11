@@ -38,6 +38,7 @@ pub const DEFAULT_PORT: u16 = 9;
 const MAGIC_PACKET_LENGTH: usize = 102; // 6 + 6 * 16 = 102
 
 /// Build a magic Wake-on-LAN packet from a 48-bit MAC address.
+#[inline]
 fn build_magic_packet(mac: MacAddr6) -> [u8; MAGIC_PACKET_LENGTH] {
     // The first 6 bytes if the packet are all 0xff, followed by 16
     // repetitions of the 6-byte MAC address.
