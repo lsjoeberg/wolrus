@@ -34,13 +34,25 @@ pub const DEFAULT_ADDR: Ipv4Addr = Ipv4Addr::BROADCAST;
 /// Default target port is the Discard port: `9`.
 pub const DEFAULT_PORT: u16 = 9;
 
+/// Magic packet length in number of bytes.
+const MAGIC_PACKET_LENGTH: usize = 102; // 6 + 6 * 16 = 102
+
 /// Build a magic Wake-on-LAN packet from a 48-bit MAC address.
-fn build_magic_packet(mac: MacAddr6) -> [u8; 102] {
+fn build_magic_packet(mac: MacAddr6) -> [u8; MAGIC_PACKET_LENGTH] {
     // The first 6 bytes if the packet are all 0xff, followed by 16
     // repetitions of the 6-byte MAC address.
-    let mut a = [0xff; 102]; // 6 + 6 * 16 = 102
-    a[6..].copy_from_slice(mac.into_array().repeat(16).as_slice());
-    a
+    let mut packet = [0xff; MAGIC_PACKET_LENGTH];
+    let mac_chunk = mac.into_array();
+
+    // SAFETY: The slice length is constructed as a multiple of 6-byte arrays, 17 to be exact.
+    let chunks = unsafe { packet.as_chunks_unchecked_mut() };
+
+    // Fill the packet array with repetitions of the MAC-address, except the first 6 bytes.
+    // TODO: Make fn const when feature `const_slice_make_iter` is stabilised.
+    for chunk in chunks.iter_mut().skip(1) {
+        *chunk = mac_chunk;
+    }
+    packet
 }
 
 /// Send a Wake-on-LAN packet over UDP.
