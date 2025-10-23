@@ -5,10 +5,12 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.11", optional = true, features = ["derive"] }
-macaddr = "1.0.1"
+macaddr = { version = "1.0.1", optional = true }
+managed = { version = "0.8.0", default-features = false }
+smoltcp = "0.12.0"
 
 [features]
-cli = ["dep:clap"]
+cli = ["dep:clap", "dep:macaddr"]
 
 [[bin]]
 name = "wolrus"
@@ -21,3 +23,6 @@ pedantic = "warn"
 strip = true
 lto = true
 codegen-units = 1
+
+[dev-dependencies]
+heapless = "0.9.1"
