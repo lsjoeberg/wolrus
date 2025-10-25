@@ -1,5 +1,19 @@
-/target
+# Allowlisting gitignore.
 
-# editors
-.idea/
-.vscode/
+# Ignore everything
+*
+
+# But not these files...
+!/.gitignore
+
+!Cargo.*
+!src
+
+!README.md
+!LICENSE
+
+!justfile
+!.github
+
+# ...even if they are in subdirectories
+!*/
